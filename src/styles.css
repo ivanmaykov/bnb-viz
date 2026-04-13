@@ -250,6 +250,40 @@ h2 {
   padding: 10px;
 }
 
+.viz-altair .vega-bindings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: end;
+  margin-top: 18px;
+  padding: 0 8px 10px;
+}
+
+.viz-altair .vega-bind {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.96rem;
+  color: var(--muted);
+}
+
+.viz-altair .vega-bind-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.viz-altair .vega-bind select {
+  min-width: 180px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  box-shadow: none;
+}
+
 .neighborhood-shape {
   stroke: rgba(94, 49, 19, 0.75);
   stroke-width: 1;

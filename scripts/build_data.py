@@ -170,6 +170,8 @@ def build_pricing_monthly(
             listing = local_by_id.get(row['listing_id'])
             if not listing:
                 continue
+            if row.get('available') != 't':
+                continue
             price = parse_money(row.get('price') or row.get('adjusted_price'))
             if price is None:
                 continue
@@ -425,7 +427,7 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
         .mark_line(color='#cf5f28', point=True)
         .encode(
             x=alt.X('month_date:T', title='Month'),
-            y=alt.Y('median_price:Q', title='Median listed nightly price'),
+            y=alt.Y('median_price:Q', title='Median available nightly price'),
             tooltip=[
                 alt.Tooltip('month:N', title='Month'),
                 alt.Tooltip('segment:N', title='Series'),
