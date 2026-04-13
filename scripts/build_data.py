@@ -291,7 +291,7 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
             x=alt.X('price:Q', title='Nightly price ($)', scale=alt.Scale(zero=False)),
             y=alt.Y(
                 'estimated_occupancy_l365d:Q',
-                title='Estimated occupancy (days booked in last 365)',
+                title='Estimated booked days (last 365)',
                 scale=alt.Scale(zero=False),
             ),
             color=alt.condition(
@@ -311,12 +311,12 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
             ),
             size=alt.Size(
                 'number_of_reviews_ltm:Q',
-                title='Reviews in last 12 months',
+                title='12-mo reviews',
                 legend=alt.Legend(
                     orient='bottom',
                     direction='horizontal',
-                    titleLimit=180,
-                    labelLimit=180,
+                    titleLimit=140,
+                    labelLimit=120,
                 ),
             ),
             tooltip=[
@@ -332,7 +332,7 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 alt.Tooltip('calculated_host_listings_count:Q', title='Host listings'),
             ],
         )
-        .properties(width=630, height=390)
+        .properties(width=600, height=380)
         .add_params(brush, room_type)
     )
 
@@ -353,7 +353,7 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 alt.Tooltip('selected_count:Q', title='Selected listings'),
             ],
         )
-        .properties(width=630, height=230)
+        .properties(width=600, height=225)
     )
 
     spec = (
@@ -361,14 +361,14 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .resolve_scale(size='independent')
         .configure_view(stroke=None, fill=CHART_BACKGROUND)
         .configure_axis(
-            labelFontSize=16,
-            titleFontSize=18,
+            labelFontSize=14,
+            titleFontSize=16,
             gridColor='#d8d0c4',
         )
         .configure_legend(
-            labelFontSize=15,
-            titleFontSize=17,
-            symbolSize=170,
+            labelFontSize=13,
+            titleFontSize=15,
+            symbolSize=130,
         )
     )
     spec_dict = spec.to_dict()

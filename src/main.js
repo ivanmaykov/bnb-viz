@@ -29,36 +29,26 @@ const metrics = {
   },
 };
 
-const rankMetrics = {
-  median_price: {
-    label: 'Median nightly price',
-    value: (d) => d.median_price,
+const boxplotMetrics = {
+  price: {
+    label: 'Nightly price',
+    accessor: (d) => d.price,
     formatter: money,
-    domainMax: null,
   },
-  entire_home_share: {
-    label: 'Entire-home share',
-    value: (d) => d.entire_home_share,
-    formatter: pct,
-    domainMax: 1,
+  estimated_occupancy_l365d: {
+    label: 'Estimated booked days',
+    accessor: (d) => d.estimated_occupancy_l365d,
+    formatter: (value) => `${oneDecimal(value)} nights`,
   },
-  multi_listing_share: {
-    label: 'Multi-listing host share',
-    value: (d) => d.multi_listing_share,
-    formatter: pct,
-    domainMax: 1,
-  },
-  average_availability: {
-    label: 'Average availability',
-    value: (d) => d.average_availability,
+  availability_365: {
+    label: 'Availability',
+    accessor: (d) => d.availability_365,
     formatter: (value) => `${oneDecimal(value)} days`,
-    domainMax: null,
   },
-  listing_count: {
-    label: 'Listing count',
-    value: (d) => d.listing_count,
-    formatter: d3.format(','),
-    domainMax: null,
+  calculated_host_listings_count: {
+    label: 'Host listing count',
+    accessor: (d) => d.calculated_host_listings_count,
+    formatter: (value) => oneDecimal(value),
   },
 };
 
@@ -165,18 +155,18 @@ page.innerHTML = `
       <p class="section-kicker">4. Commercialization</p>
       <h2>Expensive neighborhoods are not always the most commercialized.</h2>
       <p>
-        Some neighborhoods are expensive because they attract strong travel
-        demand, while others look more commercial because they have more
-        entire-home inventory and more multi-listing hosts. Ranking those
-        measures side by side separates prestige from professionalization. This
-        visualization was built with D3 as a sortable horizontal bar chart, with
-        D3 controlling the scale updates, bar rendering, and metric switching.
+        Neighborhood averages can hide how wide the market really is inside each
+        area. The boxplots show whether a neighborhood is consistently expensive
+        or whether it mixes a few extreme listings with a much more typical
+        middle range. This visualization was built with D3 as an interactive
+        horizontal boxplot chart, with D3 computing quartiles, whiskers, and
+        neighborhood ordering from listing-level data.
       </p>
     </div>
     <div class="card">
       <div class="controls-row">
         <label>
-          Rank by
+          Compare by
           <select id="rank-metric"></select>
         </label>
       </div>
@@ -225,7 +215,7 @@ Promise.all([
     ]) => {
       renderHeroStats(listingPoints, neighborhoodSummary);
       renderMap(listingPoints, neighborhoodShapes);
-      renderRankChart(neighborhoodSummary);
+      renderRankChart(listingPoints);
       renderAltairChart('#altair-scatter', scatterSpec);
       renderAltairChart('#altair-seasonal', seasonalitySpec);
     }
@@ -434,9 +424,9 @@ function renderMap(listings, geojson) {
   update();
 }
 
-function renderRankChart(summary) {
+function renderRankChart(listings) {
   const select = document.querySelector('#rank-metric');
-  select.innerHTML = Object.entries(rankMetrics)
+  select.innerHTML = Object.entries(boxplotMetrics)
     .map(
       ([value, config]) => `<option value="${value}">${config.label}</option>`
     )
@@ -444,55 +434,76 @@ function renderRankChart(summary) {
 
   const container = document.querySelector('#rank-chart');
   const width = container.clientWidth || 960;
-  const margin = { top: 16, right: 150, bottom: 28, left: 270 };
-  const barHeight = 26;
+  const margin = { top: 16, right: 48, bottom: 36, left: 250 };
+  const rowHeight = 30;
 
   const svg = d3.select(container).append('svg');
   const root = svg.append('g');
 
   function update() {
-    const metric = rankMetrics[select.value];
-    const sorted = [...summary]
-      .filter((d) => metric.value(d) !== null && !Number.isNaN(metric.value(d)))
-      .sort((a, b) => d3.descending(metric.value(a), metric.value(b)))
+    const metric = boxplotMetrics[select.value];
+    const grouped = d3.group(
+      listings.filter((d) => {
+        const value = metric.accessor(d);
+        return value !== null && !Number.isNaN(value);
+      }),
+      (d) => d.neighbourhood
+    );
+
+    const stats = Array.from(grouped, ([neighbourhood, rows]) => {
+      const values = rows
+        .map(metric.accessor)
+        .filter((value) => value !== null && !Number.isNaN(value))
+        .sort(d3.ascending);
+      if (!values.length) {
+        return null;
+      }
+
+      return {
+        neighbourhood,
+        q1: d3.quantileSorted(values, 0.25),
+        median: d3.quantileSorted(values, 0.5),
+        q3: d3.quantileSorted(values, 0.75),
+        min: values[0],
+        max: values[values.length - 1],
+        count: values.length,
+      };
+    })
+      .filter(Boolean)
+      .sort((a, b) => d3.descending(a.median, b.median))
       .slice(0, 15);
 
-    const innerHeight = sorted.length * barHeight;
-    const valueLabelWidth =
-      d3.max(sorted, (d) => metric.formatter(metric.value(d)).length) * 11 + 24;
-    const dynamicMargin = {
-      ...margin,
-      right: Math.max(140, valueLabelWidth),
-    };
-    const innerWidth = width - dynamicMargin.left - dynamicMargin.right;
+    const innerHeight = stats.length * rowHeight;
+    const innerWidth = width - margin.left - margin.right;
 
     svg.attr(
       'viewBox',
       `0 0 ${width} ${innerHeight + margin.top + margin.bottom + 20}`
     );
-    root.attr(
-      'transform',
-      `translate(${dynamicMargin.left},${dynamicMargin.top})`
-    );
+    root.attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3
       .scaleLinear()
-      .domain([0, metric.domainMax ?? d3.max(sorted, (d) => metric.value(d))])
+      .domain([0, d3.max(stats, (d) => d.max)])
       .nice()
       .range([0, innerWidth]);
 
     const y = d3
       .scaleBand()
-      .domain(sorted.map((d) => d.neighbourhood))
+      .domain(stats.map((d) => d.neighbourhood))
       .range([0, innerHeight])
-      .padding(0.16);
+      .padding(0.28);
 
     root
-      .selectAll('.bar-row')
-      .data(sorted, (d) => d.neighbourhood)
+      .selectAll('.boxplot-row')
+      .data(stats, (d) => d.neighbourhood)
       .join((enter) => {
-        const row = enter.append('g').attr('class', 'bar-row');
-        row.append('rect').attr('class', 'bar');
+        const row = enter.append('g').attr('class', 'boxplot-row');
+        row.append('line').attr('class', 'whisker-line');
+        row.append('line').attr('class', 'whisker-cap whisker-cap-min');
+        row.append('line').attr('class', 'whisker-cap whisker-cap-max');
+        row.append('rect').attr('class', 'boxplot-box');
+        row.append('line').attr('class', 'boxplot-median');
         row.append('text').attr('class', 'bar-label');
         row.append('text').attr('class', 'bar-value');
         return row;
@@ -500,26 +511,64 @@ function renderRankChart(summary) {
       .attr('transform', (d) => `translate(0,${y(d.neighbourhood)})`)
       .each(function applyRow(d) {
         const row = d3.select(this);
+        const midY = y.bandwidth() / 2;
+        const boxHeight = Math.max(14, y.bandwidth() * 0.62);
+        const capHeight = Math.max(10, y.bandwidth() * 0.4);
+
         row
-          .select('.bar')
-          .attr('height', y.bandwidth())
-          .attr('width', x(metric.value(d)))
+          .select('.whisker-line')
+          .attr('x1', x(d.min))
+          .attr('x2', x(d.max))
+          .attr('y1', midY)
+          .attr('y2', midY)
+          .attr('stroke', '#9b3e10')
+          .attr('stroke-width', 2);
+        row
+          .select('.whisker-cap-min')
+          .attr('x1', x(d.min))
+          .attr('x2', x(d.min))
+          .attr('y1', midY - capHeight / 2)
+          .attr('y2', midY + capHeight / 2)
+          .attr('stroke', '#9b3e10')
+          .attr('stroke-width', 2);
+        row
+          .select('.whisker-cap-max')
+          .attr('x1', x(d.max))
+          .attr('x2', x(d.max))
+          .attr('y1', midY - capHeight / 2)
+          .attr('y2', midY + capHeight / 2)
+          .attr('stroke', '#9b3e10')
+          .attr('stroke-width', 2);
+        row
+          .select('.boxplot-box')
+          .attr('x', x(d.q1))
+          .attr('y', midY - boxHeight / 2)
+          .attr('width', Math.max(2, x(d.q3) - x(d.q1)))
+          .attr('height', boxHeight)
           .attr('rx', 10)
           .attr('fill', '#cf5f28');
         row
+          .select('.boxplot-median')
+          .attr('x1', x(d.median))
+          .attr('x2', x(d.median))
+          .attr('y1', midY - boxHeight / 2)
+          .attr('y2', midY + boxHeight / 2)
+          .attr('stroke', '#fff7ef')
+          .attr('stroke-width', 3);
+        row
           .select('.bar-label')
           .attr('x', -12)
-          .attr('y', y.bandwidth() / 2)
+          .attr('y', midY)
           .attr('dy', '0.35em')
           .attr('text-anchor', 'end')
           .text(d.neighbourhood);
         row
           .select('.bar-value')
-          .attr('x', x(metric.value(d)) + 10)
-          .attr('y', y.bandwidth() / 2)
+          .attr('x', x(d.median) + 10)
+          .attr('y', midY)
           .attr('dy', '0.35em')
           .attr('text-anchor', 'start')
-          .text(metric.formatter(metric.value(d)));
+          .text(`Median ${metric.formatter(d.median)}`);
       });
 
     root
@@ -528,7 +577,7 @@ function renderRankChart(summary) {
       .join('text')
       .attr('class', 'axis-title')
       .attr('x', 0)
-      .attr('y', innerHeight + 24)
+      .attr('y', innerHeight + 28)
       .text((d) => d);
   }
 

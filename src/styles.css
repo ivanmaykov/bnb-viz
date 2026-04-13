@@ -332,6 +332,11 @@ h2 {
   fill: var(--muted);
 }
 
+.boxplot-row .bar-value {
+  font-size: 0.8rem;
+  fill: #6b6258;
+}
+
 .tooltip {
   position: absolute;
   pointer-events: none;
