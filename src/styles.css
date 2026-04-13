@@ -55,6 +55,7 @@ button {
 }
 
 .hero-copy,
+.project-tile,
 .card,
 .site-footer {
   background: var(--panel);
@@ -82,13 +83,14 @@ button {
 h1,
 h2 {
   margin: 0;
-  line-height: 0.98;
+  line-height: 1.04;
   font-weight: 700;
 }
 
 h1 {
   font-size: clamp(2.8rem, 6vw, 5.8rem);
-  max-width: 12ch;
+  max-width: 11ch;
+  letter-spacing: -0.03em;
 }
 
 h2 {
@@ -109,6 +111,47 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.hero-side {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  min-width: 0;
+}
+
+.project-tile {
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.project-kicker {
+  margin: 0 0 8px;
+  color: var(--accent-deep);
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.project-tile h3 {
+  margin: 0 0 6px;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  line-height: 1.1;
+}
+
+.project-term,
+.project-authors {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.project-authors {
+  margin-top: 10px;
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.94rem;
 }
 
 .stat-tile {

@@ -73,7 +73,15 @@ page.innerHTML = `
         neighborhoods look most commercialized.
       </p>
     </div>
-    <div class="hero-stats" id="hero-stats"></div>
+    <div class="hero-side">
+      <aside class="project-tile">
+        <p class="project-kicker">Course Project</p>
+        <h3>DS4200 Final Project</h3>
+        <p class="project-term">Spring 2026</p>
+        <p class="project-authors">Ivan Maykov and Mohammed Ibrahim</p>
+      </aside>
+      <div class="hero-stats" id="hero-stats"></div>
+    </div>
   </section>
 
   <section class="story-block">
