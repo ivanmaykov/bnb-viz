@@ -266,6 +266,7 @@ async function renderAltairChart(selector, spec) {
     await embed(selector, spec, {
       actions: false,
       renderer: 'svg',
+      theme: 'none',
     });
   } catch (error) {
     console.error('Altair chart failed to render', error);
@@ -359,7 +360,7 @@ function renderMap(listings, geojson) {
 
     const color = d3
       .scaleSequential()
-      .domain(d3.extent(values).reverse())
+      .domain(d3.extent(values))
       .interpolator(d3.interpolateYlOrRd);
 
     group

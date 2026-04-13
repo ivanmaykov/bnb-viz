@@ -24,6 +24,7 @@ OFFICIAL_FILES = {
 }
 
 TOP_NEIGHBORHOODS = 8
+CHART_BACKGROUND = '#fff7ef'
 
 
 def parse_money(value: str | None) -> float | None:
@@ -330,7 +331,22 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .properties(width=630, height=230)
     )
 
-    return alt.vconcat(scatter, bars, spacing=18).resolve_scale(size='independent').to_dict()
+    return (
+        alt.vconcat(scatter, bars, spacing=18)
+        .resolve_scale(size='independent')
+        .configure_view(stroke=None, fill=CHART_BACKGROUND)
+        .configure_axis(
+            labelFontSize=15,
+            titleFontSize=16,
+            gridColor='#d8d0c4',
+        )
+        .configure_legend(
+            labelFontSize=15,
+            titleFontSize=16,
+            symbolSize=140,
+        )
+        .to_dict()
+    )
 
 
 def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[dict], top_neighborhoods: set[str]) -> dict:
@@ -419,7 +435,20 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
         .properties(width=630, height=210, title='Median price by month')
     )
 
-    return alt.vconcat(review_line, price_line, spacing=20).to_dict()
+    return (
+        alt.vconcat(review_line, price_line, spacing=20)
+        .configure_view(stroke=None, fill=CHART_BACKGROUND)
+        .configure_axis(
+            labelFontSize=14,
+            titleFontSize=15,
+            gridColor='#d8d0c4',
+        )
+        .configure_legend(
+            labelFontSize=14,
+            titleFontSize=15,
+        )
+        .to_dict()
+    )
 
 
 def main() -> None:

@@ -228,6 +228,8 @@ h2 {
 .viz-frame {
   width: 100%;
   min-width: 0;
+  background: #fff7ef;
+  border-radius: 20px;
 }
 
 .viz-map svg,
@@ -239,6 +241,13 @@ h2 {
   max-width: 100%;
   min-width: 0;
   display: block;
+  background: #fff7ef;
+}
+
+.viz-map,
+.viz-bars,
+.viz-altair {
+  padding: 10px;
 }
 
 .neighborhood-shape {
