@@ -34,26 +34,31 @@ const rankMetrics = {
     label: 'Median nightly price',
     value: (d) => d.median_price,
     formatter: money,
+    domainMax: null,
   },
   entire_home_share: {
     label: 'Entire-home share',
     value: (d) => d.entire_home_share,
     formatter: pct,
+    domainMax: 1,
   },
   multi_listing_share: {
     label: 'Multi-listing host share',
     value: (d) => d.multi_listing_share,
     formatter: pct,
+    domainMax: 1,
   },
   average_availability: {
     label: 'Average availability',
     value: (d) => d.average_availability,
     formatter: (value) => `${oneDecimal(value)} days`,
+    domainMax: null,
   },
   listing_count: {
     label: 'Listing count',
     value: (d) => d.listing_count,
     formatter: d3.format(','),
+    domainMax: null,
   },
 };
 
@@ -432,14 +437,11 @@ function renderRankChart(summary) {
 
   const container = document.querySelector('#rank-chart');
   const width = container.clientWidth || 960;
-  const margin = { top: 16, right: 16, bottom: 28, left: 170 };
-  const innerWidth = width - margin.left - margin.right;
+  const margin = { top: 16, right: 150, bottom: 28, left: 270 };
   const barHeight = 26;
 
   const svg = d3.select(container).append('svg');
-  const root = svg
-    .append('g')
-    .attr('transform', `translate(${margin.left},${margin.top})`);
+  const root = svg.append('g');
 
   function update() {
     const metric = rankMetrics[select.value];
@@ -449,14 +451,26 @@ function renderRankChart(summary) {
       .slice(0, 15);
 
     const innerHeight = sorted.length * barHeight;
+    const valueLabelWidth =
+      d3.max(sorted, (d) => metric.formatter(metric.value(d)).length) * 11 + 24;
+    const dynamicMargin = {
+      ...margin,
+      right: Math.max(140, valueLabelWidth),
+    };
+    const innerWidth = width - dynamicMargin.left - dynamicMargin.right;
+
     svg.attr(
       'viewBox',
       `0 0 ${width} ${innerHeight + margin.top + margin.bottom + 20}`
     );
+    root.attr(
+      'transform',
+      `translate(${dynamicMargin.left},${dynamicMargin.top})`
+    );
 
     const x = d3
       .scaleLinear()
-      .domain([0, d3.max(sorted, (d) => metric.value(d))])
+      .domain([0, metric.domainMax ?? d3.max(sorted, (d) => metric.value(d))])
       .nice()
       .range([0, innerWidth]);
 
@@ -497,6 +511,7 @@ function renderRankChart(summary) {
           .attr('x', x(metric.value(d)) + 10)
           .attr('y', y.bandwidth() / 2)
           .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
           .text(metric.formatter(metric.value(d)));
       });
 
