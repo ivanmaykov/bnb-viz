@@ -434,7 +434,7 @@ function renderRankChart(listings) {
 
   const container = document.querySelector('#rank-chart');
   const width = container.clientWidth || 960;
-  const margin = { top: 16, right: 48, bottom: 36, left: 250 };
+  const margin = { top: 16, right: 48, bottom: 52, left: 250 };
   const rowHeight = 30;
 
   const svg = d3.select(container).append('svg');
@@ -494,6 +494,8 @@ function renderRankChart(listings) {
       .range([0, innerHeight])
       .padding(0.28);
 
+    const xAxis = d3.axisBottom(x).ticks(6);
+
     root
       .selectAll('.boxplot-row')
       .data(stats, (d) => d.neighbourhood)
@@ -545,7 +547,7 @@ function renderRankChart(listings) {
           .attr('y', midY - boxHeight / 2)
           .attr('width', Math.max(2, x(d.q3) - x(d.q1)))
           .attr('height', boxHeight)
-          .attr('rx', 10)
+          .attr('rx', 0)
           .attr('fill', '#cf5f28');
         row
           .select('.boxplot-median')
@@ -564,20 +566,41 @@ function renderRankChart(listings) {
           .text(d.neighbourhood);
         row
           .select('.bar-value')
-          .attr('x', x(d.median) + 10)
+          .attr('x', x(d.max) + 10)
           .attr('y', midY)
           .attr('dy', '0.35em')
           .attr('text-anchor', 'start')
-          .text(`Median ${metric.formatter(d.median)}`);
+          .text('');
       });
+
+    root
+      .selectAll('.boxplot-grid')
+      .data(x.ticks(6))
+      .join('line')
+      .attr('class', 'boxplot-grid')
+      .attr('x1', (d) => x(d))
+      .attr('x2', (d) => x(d))
+      .attr('y1', 0)
+      .attr('y2', innerHeight)
+      .attr('stroke', '#d8d0c4')
+      .attr('stroke-width', 1);
+
+    root
+      .selectAll('.boxplot-axis')
+      .data([null])
+      .join('g')
+      .attr('class', 'boxplot-axis')
+      .attr('transform', `translate(0,${innerHeight})`)
+      .call(xAxis);
 
     root
       .selectAll('.axis-title')
       .data([metric.label])
       .join('text')
       .attr('class', 'axis-title')
-      .attr('x', 0)
-      .attr('y', innerHeight + 28)
+      .attr('x', innerWidth / 2)
+      .attr('y', innerHeight + 42)
+      .attr('text-anchor', 'middle')
       .text((d) => d);
   }
 

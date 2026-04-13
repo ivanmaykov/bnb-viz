@@ -337,6 +337,17 @@ h2 {
   fill: #6b6258;
 }
 
+.boxplot-axis text {
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.84rem;
+  fill: var(--muted);
+}
+
+.boxplot-axis path,
+.boxplot-axis line {
+  stroke: rgba(53, 33, 21, 0.22);
+}
+
 .tooltip {
   position: absolute;
   pointer-events: none;
