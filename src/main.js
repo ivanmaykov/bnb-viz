@@ -459,13 +459,27 @@ function renderRankChart(listings) {
         return null;
       }
 
+      const q1 = d3.quantileSorted(values, 0.25);
+      const median = d3.quantileSorted(values, 0.5);
+      const q3 = d3.quantileSorted(values, 0.75);
+      const iqr = q3 - q1;
+      const lowerFence = q1 - iqr * 1.5;
+      const upperFence = q3 + iqr * 1.5;
+      const inliers = values.filter(
+        (value) => value >= lowerFence && value <= upperFence
+      );
+      const outliers = values.filter(
+        (value) => value < lowerFence || value > upperFence
+      );
+
       return {
         neighbourhood,
-        q1: d3.quantileSorted(values, 0.25),
-        median: d3.quantileSorted(values, 0.5),
-        q3: d3.quantileSorted(values, 0.75),
-        min: values[0],
-        max: values[values.length - 1],
+        q1,
+        median,
+        q3,
+        min: inliers[0] ?? values[0],
+        max: inliers[inliers.length - 1] ?? values[values.length - 1],
+        outliers,
         count: values.length,
       };
     })
@@ -484,7 +498,10 @@ function renderRankChart(listings) {
 
     const x = d3
       .scaleLinear()
-      .domain([0, d3.max(stats, (d) => d.max)])
+      .domain([
+        0,
+        d3.max(stats, (d) => (d.outliers.length ? d3.max(d.outliers) : d.max)),
+      ])
       .nice()
       .range([0, innerWidth]);
 
@@ -507,7 +524,6 @@ function renderRankChart(listings) {
         row.append('rect').attr('class', 'boxplot-box');
         row.append('line').attr('class', 'boxplot-median');
         row.append('text').attr('class', 'bar-label');
-        row.append('text').attr('class', 'bar-value');
         return row;
       })
       .attr('transform', (d) => `translate(0,${y(d.neighbourhood)})`)
@@ -564,13 +580,26 @@ function renderRankChart(listings) {
           .attr('dy', '0.35em')
           .attr('text-anchor', 'end')
           .text(d.neighbourhood);
-        row
-          .select('.bar-value')
-          .attr('x', x(d.max) + 10)
-          .attr('y', midY)
-          .attr('dy', '0.35em')
-          .attr('text-anchor', 'start')
-          .text('');
+      });
+
+    root
+      .selectAll('.outlier-group')
+      .data(stats, (d) => d.neighbourhood)
+      .join((enter) => enter.append('g').attr('class', 'outlier-group'))
+      .attr('transform', (d) => `translate(0,${y(d.neighbourhood)})`)
+      .each(function applyOutliers(d) {
+        const group = d3.select(this);
+        const midY = y.bandwidth() / 2;
+        group
+          .selectAll('.outlier-dot')
+          .data(d.outliers)
+          .join('circle')
+          .attr('class', 'outlier-dot')
+          .attr('cx', (value) => x(value))
+          .attr('cy', midY)
+          .attr('r', 3.2)
+          .attr('fill', '#9b3e10')
+          .attr('opacity', 0.82);
       });
 
     root
