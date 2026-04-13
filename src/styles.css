@@ -51,7 +51,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
   gap: 24px;
-  align-items: end;
+  align-items: start;
 }
 
 .hero-copy,
@@ -66,7 +66,7 @@ button {
 
 .hero-copy {
   border-radius: 28px;
-  padding: 32px;
+  padding: 28px 30px 26px;
 }
 
 .eyebrow,
@@ -118,6 +118,7 @@ h2 {
   grid-template-rows: auto 1fr;
   gap: 16px;
   min-width: 0;
+  align-self: start;
 }
 
 .project-tile {
@@ -248,6 +249,14 @@ h2 {
 .viz-bars,
 .viz-altair {
   padding: 10px;
+}
+
+.viz-altair .vega-embed,
+.viz-altair .vega-embed > div,
+.viz-altair .chart-wrapper,
+.viz-altair .marks,
+.viz-altair .background {
+  background: #fff7ef !important;
 }
 
 .viz-altair .vega-bindings {

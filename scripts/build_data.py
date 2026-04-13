@@ -333,22 +333,24 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .properties(width=630, height=230)
     )
 
-    return (
+    spec = (
         alt.vconcat(scatter, bars, spacing=18)
         .resolve_scale(size='independent')
         .configure_view(stroke=None, fill=CHART_BACKGROUND)
         .configure_axis(
-            labelFontSize=15,
-            titleFontSize=16,
+            labelFontSize=18,
+            titleFontSize=20,
             gridColor='#d8d0c4',
         )
         .configure_legend(
-            labelFontSize=15,
-            titleFontSize=16,
-            symbolSize=140,
+            labelFontSize=18,
+            titleFontSize=20,
+            symbolSize=220,
         )
-        .to_dict()
     )
+    spec_dict = spec.to_dict()
+    spec_dict['background'] = CHART_BACKGROUND
+    return spec_dict
 
 
 def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[dict], top_neighborhoods: set[str]) -> dict:
@@ -437,7 +439,7 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
         .properties(width=630, height=210, title='Median price by month')
     )
 
-    return (
+    spec = (
         alt.vconcat(review_line, price_line, spacing=20)
         .configure_view(stroke=None, fill=CHART_BACKGROUND)
         .configure_axis(
@@ -449,8 +451,10 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
             labelFontSize=14,
             titleFontSize=15,
         )
-        .to_dict()
     )
+    spec_dict = spec.to_dict()
+    spec_dict['background'] = CHART_BACKGROUND
+    return spec_dict
 
 
 def main() -> None:
