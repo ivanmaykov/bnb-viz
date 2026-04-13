@@ -294,8 +294,31 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 title='Estimated occupancy (days booked in last 365)',
                 scale=alt.Scale(zero=False),
             ),
-            color=alt.condition(room_type, alt.Color('room_type:N', title='Room type'), alt.value('#d8b59a')),
-            size=alt.Size('number_of_reviews_ltm:Q', title='Reviews in last 12 months'),
+            color=alt.condition(
+                room_type,
+                alt.Color(
+                    'room_type:N',
+                    title='Room type',
+                    legend=alt.Legend(
+                        orient='bottom',
+                        direction='horizontal',
+                        columns=4,
+                        titleLimit=240,
+                        labelLimit=220,
+                    ),
+                ),
+                alt.value('#d8b59a'),
+            ),
+            size=alt.Size(
+                'number_of_reviews_ltm:Q',
+                title='Reviews in last 12 months',
+                legend=alt.Legend(
+                    orient='bottom',
+                    direction='horizontal',
+                    titleLimit=240,
+                    labelLimit=220,
+                ),
+            ),
             tooltip=[
                 alt.Tooltip('name:N', title='Listing'),
                 alt.Tooltip('neighbourhood:N', title='Neighborhood'),

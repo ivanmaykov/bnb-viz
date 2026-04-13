@@ -51,7 +51,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .hero-copy,
@@ -111,6 +111,10 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  grid-auto-rows: 1fr;
+  min-height: 0;
+  height: 100%;
+  align-content: stretch;
 }
 
 .hero-side {
@@ -118,7 +122,8 @@ h2 {
   grid-template-rows: auto 1fr;
   gap: 16px;
   min-width: 0;
-  align-self: start;
+  align-self: stretch;
+  height: 100%;
 }
 
 .project-tile {
@@ -157,6 +162,7 @@ h2 {
 
 .stat-tile {
   min-height: 132px;
+  height: 100%;
   padding: 22px;
   border-radius: 24px;
   background: linear-gradient(
