@@ -1,0 +1,7 @@
+.venv
+node_modules
+dist
+public/data
+data/raw
+*.csv
+*.geojson
