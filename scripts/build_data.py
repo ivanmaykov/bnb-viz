@@ -303,8 +303,8 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                         orient='bottom',
                         direction='horizontal',
                         columns=4,
-                        titleLimit=240,
-                        labelLimit=220,
+                        titleLimit=180,
+                        labelLimit=180,
                     ),
                 ),
                 alt.value('#d8b59a'),
@@ -315,8 +315,8 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 legend=alt.Legend(
                     orient='bottom',
                     direction='horizontal',
-                    titleLimit=240,
-                    labelLimit=220,
+                    titleLimit=180,
+                    labelLimit=180,
                 ),
             ),
             tooltip=[
@@ -361,14 +361,14 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .resolve_scale(size='independent')
         .configure_view(stroke=None, fill=CHART_BACKGROUND)
         .configure_axis(
-            labelFontSize=18,
-            titleFontSize=20,
+            labelFontSize=16,
+            titleFontSize=18,
             gridColor='#d8d0c4',
         )
         .configure_legend(
-            labelFontSize=18,
-            titleFontSize=20,
-            symbolSize=220,
+            labelFontSize=15,
+            titleFontSize=17,
+            symbolSize=170,
         )
     )
     spec_dict = spec.to_dict()

@@ -79,6 +79,13 @@ page.innerHTML = `
       </p>
     </div>
     <div class="hero-side">
+      <div class="hero-image-tile">
+        <img
+          src="${import.meta.env.BASE_URL}hero-boston.webp"
+          alt="Boston street scene with historic brick buildings and outdoor dining"
+          class="hero-image"
+        />
+      </div>
       <aside class="project-tile">
         <p class="project-kicker">Course Project</p>
         <h3>DS4200 Final Project</h3>
