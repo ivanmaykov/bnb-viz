@@ -44,6 +44,7 @@ button {
 .story-block,
 .site-footer {
   margin-bottom: 32px;
+  min-width: 0;
 }
 
 .hero {
@@ -139,6 +140,10 @@ h2 {
   align-items: start;
 }
 
+.story-block > * {
+  min-width: 0;
+}
+
 .story-intro {
   position: sticky;
   top: 24px;
@@ -149,6 +154,8 @@ h2 {
 .card {
   border-radius: 28px;
   padding: 18px 18px 22px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .controls-row {
@@ -177,12 +184,17 @@ h2 {
 
 .viz-frame {
   width: 100%;
+  min-width: 0;
 }
 
 .viz-map svg,
 .viz-bars svg,
-.viz-altair > div {
+.viz-altair > div,
+.viz-altair svg,
+.viz-altair canvas {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   display: block;
 }
 

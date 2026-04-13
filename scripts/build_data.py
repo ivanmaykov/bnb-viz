@@ -327,10 +327,10 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 alt.Tooltip('selected_count:Q', title='Selected listings'),
             ],
         )
-        .properties(width=230, height=390)
+        .properties(width=630, height=230)
     )
 
-    return alt.hconcat(scatter, bars, spacing=18).resolve_scale(size='independent').to_dict()
+    return alt.vconcat(scatter, bars, spacing=18).resolve_scale(size='independent').to_dict()
 
 
 def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[dict], top_neighborhoods: set[str]) -> dict:
@@ -401,7 +401,7 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
                 alt.Tooltip('review_count:Q', title='Reviews'),
             ],
         )
-        .properties(width=860, height=210, title='Reviews by month')
+        .properties(width=630, height=210, title='Reviews by month')
     )
 
     price_line = (
@@ -416,7 +416,7 @@ def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[di
                 alt.Tooltip('median_price:Q', title='Median price', format='$,.0f'),
             ],
         )
-        .properties(width=860, height=210, title='Median price by month')
+        .properties(width=630, height=210, title='Median price by month')
     )
 
     return alt.vconcat(review_line, price_line, spacing=20).to_dict()

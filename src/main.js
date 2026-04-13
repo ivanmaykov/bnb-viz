@@ -81,10 +81,11 @@ page.innerHTML = `
       <p class="section-kicker">1. Spatial pattern</p>
       <h2>Nightly prices cluster unevenly across Boston.</h2>
       <p>
-        The map starts with neighborhood median nightly price, then lets you
-        switch to supply, occupancy, or rating. Room-type filters reveal how
-        much the geography changes when you compare entire homes to private
-        rooms.
+        Boston’s Airbnb market is not evenly distributed. Higher median prices
+        tend to cluster in central, visitor-friendly neighborhoods, while other
+        areas show more supply than pricing power. This visualization was built
+        with D3 as an interactive choropleth map, with D3 also handling the
+        tooltip, color scale, and room-type filtering controls.
       </p>
     </div>
     <div class="card">
@@ -107,9 +108,13 @@ page.innerHTML = `
       <p class="section-kicker">2. Market tradeoffs</p>
       <h2>Higher prices do not guarantee higher occupancy.</h2>
       <p>
-        This Altair chart links nightly price, occupancy, recent reviews, and
-        host scale. Brush the scatterplot to see which neighborhoods dominate
-        the selected subset.
+        Expensive listings are not automatically the most heavily booked, and
+        the relationship changes once you separate private rooms from entire
+        homes. The real pattern is a tradeoff between pricing, host scale, and
+        recent demand rather than a simple upward slope. This visualization was
+        built with Altair and rendered on the site through Vega-Embed, with
+        brushing and linked neighborhood summaries generated from the Altair
+        spec.
       </p>
     </div>
     <div class="card">
@@ -122,9 +127,12 @@ page.innerHTML = `
       <p class="section-kicker">3. Seasonality</p>
       <h2>Demand and price move together through the year.</h2>
       <p>
-        Reviews show when guests actually arrive. Calendar pricing shows how
-        listed nightly prices move around those peaks. The chart lets you focus
-        on room type and neighborhood slices.
+        Reviews and asking prices both move seasonally, but not always with the
+        same intensity. Looking at the two together makes it easier to see when
+        hosts appear to price ahead of demand versus reacting to it after the
+        fact. This visualization was built with Altair and rendered through
+        Vega-Embed, with Python generating the seasonal price-and-review spec
+        from the processed monthly data.
       </p>
     </div>
     <div class="card">
@@ -137,9 +145,12 @@ page.innerHTML = `
       <p class="section-kicker">4. Commercialization</p>
       <h2>Expensive neighborhoods are not always the most commercialized.</h2>
       <p>
-        This comparison view ranks neighborhoods by price, inventory mix, host
-        concentration, and availability to show where the market looks most
-        professionalized.
+        Some neighborhoods are expensive because they attract strong travel
+        demand, while others look more commercial because they have more
+        entire-home inventory and more multi-listing hosts. Ranking those
+        measures side by side separates prestige from professionalization. This
+        visualization was built with D3 as a sortable horizontal bar chart, with
+        D3 controlling the scale updates, bar rendering, and metric switching.
       </p>
     </div>
     <div class="card">
