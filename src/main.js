@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import embed from 'vega-embed';
 import './styles.css';
 
 const dataBase = `${import.meta.env.BASE_URL}data/`;
@@ -237,11 +236,23 @@ function renderHeroStats(listings, neighborhoods) {
     .join('');
 }
 
-function renderAltairChart(selector, spec) {
-  embed(selector, spec, {
-    actions: false,
-    renderer: 'svg',
-  });
+async function renderAltairChart(selector, spec) {
+  const container = document.querySelector(selector);
+  if (!container) {
+    return;
+  }
+
+  try {
+    const { default: embed } = await import('vega-embed');
+    await embed(selector, spec, {
+      actions: false,
+      renderer: 'svg',
+    });
+  } catch (error) {
+    console.error('Altair chart failed to render', error);
+    container.innerHTML =
+      '<p class="error-state">This Altair chart failed to load. Check the browser console for the runtime error.</p>';
+  }
 }
 
 function renderMap(listings, geojson) {
