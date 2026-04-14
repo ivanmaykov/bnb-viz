@@ -437,8 +437,12 @@ function renderFeaturedListing(listings) {
 
   draw(shuffled[index]);
   window.setInterval(() => {
-    index = (index + 1) % shuffled.length;
-    draw(shuffled[index]);
+    container.classList.add('is-fading');
+    window.setTimeout(() => {
+      index = (index + 1) % shuffled.length;
+      draw(shuffled[index]);
+      container.classList.remove('is-fading');
+    }, 500);
   }, 5000);
 }
 
