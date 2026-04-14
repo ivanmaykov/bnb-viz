@@ -63,7 +63,6 @@ page.className = 'page-shell';
 page.innerHTML = `
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">Boston Airbnb Story</p>
       <h1>Price, pressure, and place in Boston’s Airbnb market</h1>
       <p class="lede">
         This project examines Boston’s Airbnb market through the lens of price,
@@ -347,7 +346,7 @@ function renderHeroStats(listings, neighborhoods) {
       value: d3.format(',')(neighborhoods.length),
     },
     {
-      label: 'Typical occupancy',
+      label: 'Median booked nights',
       value: d3.format(',')(
         Math.round(d3.median(listings, (d) => d.estimated_occupancy_l365d))
       ),
