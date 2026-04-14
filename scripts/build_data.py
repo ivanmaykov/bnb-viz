@@ -377,7 +377,12 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
 
 
 def build_seasonality_spec(reviews_monthly: list[dict], pricing_monthly: list[dict], top_neighborhoods: set[str]) -> dict:
-    valid_months = {row['month'] for row in pricing_monthly if row['median_price'] is not None}
+    excluded_months = {'2025-12'}
+    valid_months = {
+        row['month']
+        for row in pricing_monthly
+        if row['median_price'] is not None and row['month'] not in excluded_months
+    }
     price_lookup = {
         (row['month'], row['segment_type'], row['segment']): row['median_price']
         for row in pricing_monthly

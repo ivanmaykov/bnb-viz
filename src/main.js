@@ -32,23 +32,27 @@ const metrics = {
 const boxplotMetrics = {
   price: {
     label: 'Nightly price',
+    chartType: 'boxplot',
     accessor: (d) => d.price,
     formatter: money,
   },
   estimated_occupancy_l365d: {
     label: 'Estimated booked days',
-    accessor: (d) => d.estimated_occupancy_l365d,
+    chartType: 'bar',
+    summaryKey: 'median_occupancy',
     formatter: (value) => `${oneDecimal(value)} nights`,
   },
   availability_365: {
-    label: 'Availability',
-    accessor: (d) => d.availability_365,
+    label: 'Average availability',
+    chartType: 'bar',
+    summaryKey: 'average_availability',
     formatter: (value) => `${oneDecimal(value)} days`,
   },
-  calculated_host_listings_count: {
-    label: 'Host listing count',
-    accessor: (d) => d.calculated_host_listings_count,
-    formatter: (value) => oneDecimal(value),
+  multi_listing_share: {
+    label: 'Multi-listing host share',
+    chartType: 'bar',
+    summaryKey: 'multi_listing_share',
+    formatter: pct,
   },
 };
 
@@ -155,12 +159,13 @@ page.innerHTML = `
       <p class="section-kicker">4. Commercialization</p>
       <h2>Expensive neighborhoods are not always the most commercialized.</h2>
       <p>
-        Neighborhood averages can hide how wide the market really is inside each
-        area. The boxplots show whether a neighborhood is consistently expensive
-        or whether it mixes a few extreme listings with a much more typical
-        middle range. This visualization was built with D3 as an interactive
-        horizontal boxplot chart, with D3 computing quartiles, whiskers, and
-        neighborhood ordering from listing-level data.
+        Price has a real within-neighborhood distribution, but the other
+        commercialization measures are better understood as summary rankings.
+        Keeping only nightly price as a boxplot avoids overstating precision,
+        while the bar views still make neighborhood differences easy to compare.
+        This visualization was built with D3, using a listing-level boxplot for
+        nightly price and summary bar charts for occupancy, availability, and
+        multi-listing host share.
       </p>
     </div>
     <div class="card">
@@ -176,9 +181,7 @@ page.innerHTML = `
 
   <footer class="site-footer">
     <p>
-      Data sources: local Inside Airbnb Boston summary files in this repo, plus
-      official detailed Boston pricing files from Inside Airbnb dated 15 March
-      2025.
+      Data sources: Inside Airbnb, dated 15 March 2025, insideairbnb.com
     </p>
   </footer>
 `;
@@ -215,7 +218,7 @@ Promise.all([
     ]) => {
       renderHeroStats(listingPoints, neighborhoodSummary);
       renderMap(listingPoints, neighborhoodShapes);
-      renderRankChart(listingPoints);
+      renderRankChart(listingPoints, neighborhoodSummary);
       renderAltairChart('#altair-scatter', scatterSpec);
       renderAltairChart('#altair-seasonal', seasonalitySpec);
     }
@@ -424,7 +427,7 @@ function renderMap(listings, geojson) {
   update();
 }
 
-function renderRankChart(listings) {
+function renderRankChart(listings, neighborhoodSummary) {
   const select = document.querySelector('#rank-metric');
   select.innerHTML = Object.entries(boxplotMetrics)
     .map(
@@ -440,8 +443,17 @@ function renderRankChart(listings) {
   const svg = d3.select(container).append('svg');
   const root = svg.append('g');
 
-  function update() {
-    const metric = boxplotMetrics[select.value];
+  const barColor = '#cf5f28';
+  const lineColor = '#9b3e10';
+  const gridColor = '#d8d0c4';
+
+  function clearChartLayers() {
+    root.selectAll('.boxplot-row').remove();
+    root.selectAll('.outlier-group').remove();
+    root.selectAll('.bar-row').remove();
+  }
+
+  function renderBoxplot(metric, innerWidth) {
     const grouped = d3.group(
       listings.filter((d) => {
         const value = metric.accessor(d);
@@ -462,14 +474,10 @@ function renderRankChart(listings) {
       const q1 = d3.quantileSorted(values, 0.25);
       const median = d3.quantileSorted(values, 0.5);
       const q3 = d3.quantileSorted(values, 0.75);
-      const iqr = q3 - q1;
-      const lowerFence = q1 - iqr * 1.5;
-      const upperFence = q3 + iqr * 1.5;
-      const inliers = values.filter(
-        (value) => value >= lowerFence && value <= upperFence
-      );
+      const lowerWhisker = d3.quantileSorted(values, 0.1);
+      const upperWhisker = d3.quantileSorted(values, 0.9);
       const outliers = values.filter(
-        (value) => value < lowerFence || value > upperFence
+        (value) => value < lowerWhisker || value > upperWhisker
       );
 
       return {
@@ -477,10 +485,9 @@ function renderRankChart(listings) {
         q1,
         median,
         q3,
-        min: inliers[0] ?? values[0],
-        max: inliers[inliers.length - 1] ?? values[values.length - 1],
+        min: lowerWhisker,
+        max: upperWhisker,
         outliers,
-        count: values.length,
       };
     })
       .filter(Boolean)
@@ -488,8 +495,6 @@ function renderRankChart(listings) {
       .slice(0, 15);
 
     const innerHeight = stats.length * rowHeight;
-    const innerWidth = width - margin.left - margin.right;
-
     svg.attr(
       'viewBox',
       `0 0 ${width} ${innerHeight + margin.top + margin.bottom + 20}`
@@ -498,10 +503,7 @@ function renderRankChart(listings) {
 
     const x = d3
       .scaleLinear()
-      .domain([
-        0,
-        d3.max(stats, (d) => (d.outliers.length ? d3.max(d.outliers) : d.max)),
-      ])
+      .domain([0, d3.max(stats, (d) => d3.max([d.max, ...d.outliers])) ?? 0])
       .nice()
       .range([0, innerWidth]);
 
@@ -510,8 +512,6 @@ function renderRankChart(listings) {
       .domain(stats.map((d) => d.neighbourhood))
       .range([0, innerHeight])
       .padding(0.28);
-
-    const xAxis = d3.axisBottom(x).ticks(6);
 
     root
       .selectAll('.boxplot-row')
@@ -539,7 +539,7 @@ function renderRankChart(listings) {
           .attr('x2', x(d.max))
           .attr('y1', midY)
           .attr('y2', midY)
-          .attr('stroke', '#9b3e10')
+          .attr('stroke', lineColor)
           .attr('stroke-width', 2);
         row
           .select('.whisker-cap-min')
@@ -547,7 +547,7 @@ function renderRankChart(listings) {
           .attr('x2', x(d.min))
           .attr('y1', midY - capHeight / 2)
           .attr('y2', midY + capHeight / 2)
-          .attr('stroke', '#9b3e10')
+          .attr('stroke', lineColor)
           .attr('stroke-width', 2);
         row
           .select('.whisker-cap-max')
@@ -555,7 +555,7 @@ function renderRankChart(listings) {
           .attr('x2', x(d.max))
           .attr('y1', midY - capHeight / 2)
           .attr('y2', midY + capHeight / 2)
-          .attr('stroke', '#9b3e10')
+          .attr('stroke', lineColor)
           .attr('stroke-width', 2);
         row
           .select('.boxplot-box')
@@ -564,7 +564,7 @@ function renderRankChart(listings) {
           .attr('width', Math.max(2, x(d.q3) - x(d.q1)))
           .attr('height', boxHeight)
           .attr('rx', 0)
-          .attr('fill', '#cf5f28');
+          .attr('fill', barColor);
         row
           .select('.boxplot-median')
           .attr('x1', x(d.median))
@@ -598,20 +598,107 @@ function renderRankChart(listings) {
           .attr('cx', (value) => x(value))
           .attr('cy', midY)
           .attr('r', 3.2)
-          .attr('fill', '#9b3e10')
+          .attr('fill', lineColor)
           .attr('opacity', 0.82);
       });
 
+    return { innerHeight, x, label: metric.label };
+  }
+
+  function renderBars(metric, innerWidth) {
+    const rows = neighborhoodSummary
+      .filter(
+        (d) =>
+          d[metric.summaryKey] !== null && !Number.isNaN(d[metric.summaryKey])
+      )
+      .map((d) => ({
+        neighbourhood: d.neighbourhood,
+        value: d[metric.summaryKey],
+      }))
+      .sort((a, b) => d3.descending(a.value, b.value))
+      .slice(0, 15);
+
+    const innerHeight = rows.length * rowHeight;
+    svg.attr(
+      'viewBox',
+      `0 0 ${width} ${innerHeight + margin.top + margin.bottom + 20}`
+    );
+    root.attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3
+      .scaleLinear()
+      .domain([0, d3.max(rows, (d) => d.value) ?? 0])
+      .nice()
+      .range([0, innerWidth]);
+
+    const y = d3
+      .scaleBand()
+      .domain(rows.map((d) => d.neighbourhood))
+      .range([0, innerHeight])
+      .padding(0.22);
+
+    root
+      .selectAll('.bar-row')
+      .data(rows, (d) => d.neighbourhood)
+      .join((enter) => {
+        const row = enter.append('g').attr('class', 'bar-row');
+        row.append('rect').attr('class', 'metric-bar');
+        row.append('text').attr('class', 'bar-label');
+        row.append('text').attr('class', 'bar-value');
+        return row;
+      })
+      .attr('transform', (d) => `translate(0,${y(d.neighbourhood)})`)
+      .each(function applyRow(d) {
+        const row = d3.select(this);
+        const barHeight = y.bandwidth();
+        const midY = barHeight / 2;
+
+        row
+          .select('.metric-bar')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', x(d.value))
+          .attr('height', barHeight)
+          .attr('fill', barColor);
+        row
+          .select('.bar-label')
+          .attr('x', -12)
+          .attr('y', midY)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'end')
+          .text(d.neighbourhood);
+        row
+          .select('.bar-value')
+          .attr('x', x(d.value) + 8)
+          .attr('y', midY)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
+          .text(metric.formatter(d.value));
+      });
+
+    return { innerHeight, x, label: metric.label };
+  }
+
+  function update() {
+    const metric = boxplotMetrics[select.value];
+    const innerWidth = width - margin.left - margin.right;
+    clearChartLayers();
+
+    const chartState =
+      metric.chartType === 'boxplot'
+        ? renderBoxplot(metric, innerWidth)
+        : renderBars(metric, innerWidth);
+
     root
       .selectAll('.boxplot-grid')
-      .data(x.ticks(6))
+      .data(chartState.x.ticks(6))
       .join('line')
       .attr('class', 'boxplot-grid')
-      .attr('x1', (d) => x(d))
-      .attr('x2', (d) => x(d))
+      .attr('x1', (d) => chartState.x(d))
+      .attr('x2', (d) => chartState.x(d))
       .attr('y1', 0)
-      .attr('y2', innerHeight)
-      .attr('stroke', '#d8d0c4')
+      .attr('y2', chartState.innerHeight)
+      .attr('stroke', gridColor)
       .attr('stroke-width', 1);
 
     root
@@ -619,16 +706,16 @@ function renderRankChart(listings) {
       .data([null])
       .join('g')
       .attr('class', 'boxplot-axis')
-      .attr('transform', `translate(0,${innerHeight})`)
-      .call(xAxis);
+      .attr('transform', `translate(0,${chartState.innerHeight})`)
+      .call(d3.axisBottom(chartState.x).ticks(6));
 
     root
       .selectAll('.axis-title')
-      .data([metric.label])
+      .data([chartState.label])
       .join('text')
       .attr('class', 'axis-title')
       .attr('x', innerWidth / 2)
-      .attr('y', innerHeight + 42)
+      .attr('y', chartState.innerHeight + 42)
       .attr('text-anchor', 'middle')
       .text((d) => d);
   }
