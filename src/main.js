@@ -66,8 +66,13 @@ page.innerHTML = `
       <p class="eyebrow">Boston Airbnb Story</p>
       <h1>Price, pressure, and place in Boston’s Airbnb market</h1>
       <p class="lede">
-        A pricing-focused view of how Boston’s Airbnb market varies across
-        neighborhoods, seasons, demand, and host behavior.
+        This project examines Boston’s Airbnb market through the lens of price,
+        demand, and neighborhood variation. Rather than treating listings as a
+        single citywide market, it asks how local geography, seasonal shifts,
+        and host behavior combine to shape very different conditions across the
+        city. The result is a story about where pricing power is strongest,
+        where activity looks more commercialized, and how those patterns do not
+        always move together.
       </p>
     </div>
     <div class="hero-side">
