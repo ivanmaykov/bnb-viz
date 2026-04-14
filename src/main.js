@@ -202,13 +202,14 @@ page.innerHTML = `
       <p class="section-kicker">4. Commercialization</p>
       <h2>Expensive neighborhoods are not always the most commercialized.</h2>
       <p>
-        Price has a real within-neighborhood distribution, but the other
-        commercialization measures are better understood as summary rankings.
-        Keeping only nightly price as a boxplot avoids overstating precision,
-        while the bar views still make neighborhood differences easy to compare.
-        This visualization was built with D3, using a listing-level boxplot for
-        nightly price and summary bar charts for occupancy, availability, and
-        multi-listing host share.
+        Use the dropdown to compare neighborhoods across four measures:
+        nightly price, estimated occupancy, availability, and the share of
+        listings run by hosts with multiple properties. Nightly price is shown
+        as a boxplot so you can see the spread within each neighborhood, not
+        just a single average. The other three measures are neighborhood-level
+        summaries ranked as bar charts, making it easy to spot which areas skew
+        toward professional, high-volume hosting versus casual single-listing
+        hosts.
       </p>
     </div>
     <div class="card">
