@@ -217,14 +217,6 @@ page.innerHTML = `
   </section>
 
   <section class="featured-section">
-    <div class="featured-section-text">
-      <p class="section-kicker">Featured listing</p>
-      <h2>A closer look at a Boston Airbnb.</h2>
-      <p>
-        A rotating sample drawn from across the dataset — each with a real
-        price, occupancy estimate, and neighborhood.
-      </p>
-    </div>
     <aside class="featured-tile" id="featured-listing"></aside>
   </section>
 

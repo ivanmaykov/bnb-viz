@@ -239,22 +239,12 @@ h2 {
 }
 
 .featured-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: center;
-  padding: 64px 48px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.featured-section-text {
-  min-width: 0;
+  padding: 48px 48px;
+  max-width: 600px;
 }
 
 @media (max-width: 860px) {
   .featured-section {
-    grid-template-columns: 1fr;
     padding: 40px 20px;
   }
 }
