@@ -91,7 +91,7 @@ h2 {
 }
 
 h1 {
-  font-size: clamp(2.8rem, 6vw, 5.8rem);
+  font-size: clamp(2.6rem, 5vw, 4.9rem);
   max-width: 11ch;
   letter-spacing: -0.03em;
 }
@@ -267,6 +267,7 @@ h2 {
   background: rgba(255, 252, 247, 0.72);
   border: 1px solid rgba(53, 33, 21, 0.14);
   box-shadow: 0 10px 24px rgba(35, 20, 12, 0.05);
+  border-radius: 20px;
 }
 
 .finding-number {

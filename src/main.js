@@ -66,10 +66,8 @@ page.innerHTML = `
       <p class="eyebrow">Boston Airbnb Story</p>
       <h1>Price, pressure, and place in Boston’s Airbnb market</h1>
       <p class="lede">
-        This site combines Inside Airbnb’s Boston summary files with official
-        detailed pricing data from 15 March 2025 to show where listings are
-        expensive, how price tracks demand, when the market heats up, and which
-        neighborhoods look most commercialized.
+        A pricing-focused view of how Boston’s Airbnb market varies across
+        neighborhoods, seasons, demand, and host behavior.
       </p>
     </div>
     <div class="hero-side">
@@ -91,7 +89,6 @@ page.innerHTML = `
   </section>
 
   <section class="info-panel">
-    <p class="section-kicker">Project introduction</p>
     <h2>Why study Boston’s Airbnb market?</h2>
     <p>
       Airbnb is one of the clearest places where tourism, housing, and local
@@ -109,7 +106,6 @@ page.innerHTML = `
   </section>
 
   <section class="info-panel">
-    <p class="section-kicker">Data</p>
     <h2>What data is used in this project?</h2>
     <p>
       This project uses Boston Airbnb data from Inside Airbnb dated 15 March
@@ -284,7 +280,7 @@ page.innerHTML = `
 
   <footer class="site-footer">
     <p>
-      Data sources: Inside Airbnb, dated 15 March 2025, insideairbnb.com
+      Data sources: Inside Airbnb, dated 15 March 2025, insideairbnb.com.
     </p>
   </footer>
 `;
@@ -346,8 +342,10 @@ function renderHeroStats(listings, neighborhoods) {
       value: d3.format(',')(neighborhoods.length),
     },
     {
-      label: 'Median booked nights',
-      value: d3.format(',')(Math.round(d3.median(listings, (d) => d.estimated_occupancy_l365d))),
+      label: 'Typical occupancy',
+      value: d3.format(',')(
+        Math.round(d3.median(listings, (d) => d.estimated_occupancy_l365d))
+      ),
     },
   ];
 
