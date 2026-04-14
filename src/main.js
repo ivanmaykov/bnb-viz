@@ -88,6 +88,7 @@ page.innerHTML = `
         <p class="project-term">Spring 2026</p>
         <p class="project-authors">Ivan Maykov and Mohammed Ibrahim</p>
       </aside>
+      <aside class="featured-tile" id="featured-listing"></aside>
       <div class="hero-stats" id="hero-stats"></div>
     </div>
   </section>
@@ -320,6 +321,7 @@ Promise.all([
       seasonalitySpec,
     ]) => {
       renderHeroStats(listingPoints, neighborhoodSummary);
+      renderFeaturedListing(listingPoints);
       renderMap(listingPoints, neighborhoodShapes);
       renderRankChart(listingPoints, neighborhoodSummary);
       renderAltairChart('#altair-scatter', scatterSpec);
@@ -363,6 +365,78 @@ function renderHeroStats(listings, neighborhoods) {
       `
     )
     .join('');
+}
+
+function renderFeaturedListing(listings) {
+  const container = document.querySelector('#featured-listing');
+  if (!container) {
+    return;
+  }
+
+  const candidates = listings.filter(
+    (d) =>
+      d.picture_url &&
+      d.name &&
+      d.price !== null &&
+      d.estimated_occupancy_l365d !== null &&
+      d.neighbourhood
+  );
+
+  if (!candidates.length) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const shuffled = d3
+    .shuffle([...candidates])
+    .slice(0, Math.min(24, candidates.length));
+  let index = Math.floor(Math.random() * shuffled.length);
+
+  function draw(listing) {
+    const hostLine = listing.host_name
+      ? `Hosted by ${listing.host_name}`
+      : 'Boston Airbnb listing';
+    const styleLine = [listing.property_type, listing.room_type]
+      .filter(Boolean)
+      .join(' • ');
+
+    container.innerHTML = `
+      <div class="featured-image-wrap">
+        <img
+          src="${listing.picture_url}"
+          alt="${listing.name}"
+          class="featured-image"
+          referrerpolicy="no-referrer"
+        />
+      </div>
+      <div class="featured-body">
+        <p class="project-kicker">Featured listing</p>
+        <h3 class="featured-title">${listing.name}</h3>
+        <p class="featured-meta">${hostLine}</p>
+        <p class="featured-style">${styleLine}</p>
+        <div class="featured-facts">
+          <span><strong>${money(listing.price)}</strong> / night</span>
+          <span><strong>${Math.round(listing.estimated_occupancy_l365d)}</strong> booked nights</span>
+          <span>${listing.neighbourhood}</span>
+        </div>
+      </div>
+    `;
+
+    const image = container.querySelector('.featured-image');
+    image?.addEventListener(
+      'error',
+      () => {
+        image.src = `${import.meta.env.BASE_URL}hero-boston.webp`;
+      },
+      { once: true }
+    );
+  }
+
+  draw(shuffled[index]);
+  window.setInterval(() => {
+    index = (index + 1) % shuffled.length;
+    draw(shuffled[index]);
+  }, 5000);
 }
 
 async function renderAltairChart(selector, spec) {

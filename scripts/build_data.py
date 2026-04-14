@@ -99,6 +99,9 @@ def load_local_listings() -> tuple[list[dict], dict[str, dict]]:
                 'id': listing_id,
                 'name': row['name'],
                 'neighbourhood': row['neighbourhood_cleansed'],
+                'host_name': row.get('host_name'),
+                'picture_url': row.get('picture_url'),
+                'listing_url': row.get('listing_url'),
                 'latitude': parse_float(row['latitude']),
                 'longitude': parse_float(row['longitude']),
                 'room_type': row['room_type'],
@@ -249,6 +252,9 @@ def build_listing_points(listings: list[dict]) -> list[dict]:
                 'id': listing['id'],
                 'name': listing['name'],
                 'neighbourhood': listing['neighbourhood'],
+                'host_name': listing.get('host_name'),
+                'picture_url': listing.get('picture_url'),
+                'listing_url': listing.get('listing_url'),
                 'latitude': listing['latitude'],
                 'longitude': listing['longitude'],
                 'room_type': listing['room_type'],
@@ -346,7 +352,7 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .transform_filter('datum.rank <= 10')
         .mark_bar(color='#cf5f28', cornerRadiusEnd=3)
         .encode(
-            x=alt.X('selected_count:Q', title='Selected listings'),
+            x=alt.X('selected_count:Q', title='Listings in current view'),
             y=alt.Y('neighbourhood:N', sort='-x', title='Neighborhood'),
             tooltip=[
                 alt.Tooltip('neighbourhood:N', title='Neighborhood'),
