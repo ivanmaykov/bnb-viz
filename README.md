@@ -172,3 +172,8 @@ Deployment is handled separately by GitHub Actions through the Pages workflow, w
 - The site is fully static and does not require a backend.
 - Altair charts are generated ahead of time in Python and rendered in the browser with Vega-Embed.
 - The commercialization chart intentionally uses a mixed approach: nightly price stays a boxplot because there is listing-level distribution data, while the other comparison modes use neighborhood summary bars.
+  
+## Authors
+
+- Mohamed Ibrahim  
+- Ivan Maykov
