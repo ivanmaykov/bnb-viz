@@ -404,14 +404,6 @@ function renderFeaturedListing(listings) {
       .join(' • ');
 
     container.innerHTML = `
-      <div class="featured-image-wrap">
-        <img
-          src="${listing.picture_url}"
-          alt="${listing.name}"
-          class="featured-image"
-          referrerpolicy="no-referrer"
-        />
-      </div>
       <div class="featured-body">
         <p class="project-kicker">Featured listing</p>
         <h3 class="featured-title">${listing.name}</h3>
@@ -419,9 +411,17 @@ function renderFeaturedListing(listings) {
         <p class="featured-style">${styleLine}</p>
         <div class="featured-facts">
           <span><strong>${money(listing.price)}</strong> / night</span>
-          <span><strong>${Math.round(listing.estimated_occupancy_l365d)}</strong> booked nights</span>
+          <span><strong>${Math.round(listing.estimated_occupancy_l365d)}</strong>&nbsp;booked nights</span>
           <span>${listing.neighbourhood}</span>
         </div>
+      </div>
+      <div class="featured-image-wrap">
+        <img
+          src="${listing.picture_url}"
+          alt="${listing.name}"
+          class="featured-image"
+          referrerpolicy="no-referrer"
+        />
       </div>
     `;
 
