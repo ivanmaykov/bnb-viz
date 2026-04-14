@@ -89,7 +89,7 @@ page.innerHTML = `
   </section>
 
   <section class="info-panel">
-    <h2>Why study Boston’s Airbnb market?</h2>
+    <p class="section-kicker">Project introduction</p>
     <p>
       Airbnb is one of the clearest places where tourism, housing, and local
       business activity intersect. Boston is especially interesting because its
@@ -106,7 +106,7 @@ page.innerHTML = `
   </section>
 
   <section class="info-panel">
-    <h2>What data is used in this project?</h2>
+    <p class="section-kicker">Data</p>
     <p>
       This project uses Boston Airbnb data from Inside Airbnb dated 15 March
       2025. After preprocessing, the site draws on 3,706 listing records,
