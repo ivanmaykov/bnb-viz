@@ -239,34 +239,22 @@ h2 {
 }
 
 .featured-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
   padding: 64px 48px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.featured-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 40px;
-}
-
-.featured-card {
-  border-radius: 24px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(53, 33, 21, 0.08);
-  backdrop-filter: blur(6px);
-  display: flex;
-  flex-direction: column;
+.featured-section-text {
+  min-width: 0;
 }
 
 @media (max-width: 860px) {
-  .featured-grid {
-    grid-template-columns: 1fr;
-  }
-
   .featured-section {
+    grid-template-columns: 1fr;
     padding: 40px 20px;
   }
 }
