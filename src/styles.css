@@ -42,6 +42,8 @@ button {
 
 .hero,
 .story-block,
+.info-panel,
+.conclusion-section,
 .site-footer {
   margin-bottom: 32px;
   min-width: 0;
@@ -203,6 +205,102 @@ h2 {
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.45fr);
   gap: 24px;
   align-items: start;
+}
+
+.info-panel {
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow);
+  border-radius: 28px;
+  padding: 28px 30px;
+}
+
+.info-panel h2 {
+  max-width: 18ch;
+  margin-bottom: 14px;
+}
+
+.info-panel p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 78ch;
+}
+
+.info-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.conclusion-section {
+  padding: 8px 0 0;
+}
+
+.conclusion-header {
+  margin-bottom: 28px;
+}
+
+.conclusion-header h2,
+.future-work-block h2 {
+  max-width: none;
+  margin-bottom: 18px;
+  font-size: clamp(2.3rem, 4.8vw, 4rem);
+}
+
+.conclusion-lede,
+.future-work-block p {
+  max-width: 72ch;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: clamp(1.05rem, 1.45vw, 1.22rem);
+}
+
+.finding-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 34px;
+}
+
+.finding-card {
+  padding: 28px 34px 30px;
+  background: rgba(255, 252, 247, 0.72);
+  border: 1px solid rgba(53, 33, 21, 0.14);
+  box-shadow: 0 10px 24px rgba(35, 20, 12, 0.05);
+}
+
+.finding-number {
+  margin: 0 0 26px;
+  color: #dd2218;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+  font-weight: 700;
+}
+
+.finding-card h3 {
+  margin: 0 0 18px;
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.08rem;
+  line-height: 1.35;
+}
+
+.finding-card p:last-child {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 0.98rem;
+}
+
+.future-work-block {
+  padding-top: 6px;
+}
+
+.future-work-block p {
+  margin: 0 0 14px;
+}
+
+.future-work-block p:last-child {
+  margin-bottom: 0;
 }
 
 .story-block > * {
@@ -393,6 +491,10 @@ h2 {
 
   .hero-stats {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .finding-grid {
+    grid-template-columns: 1fr;
   }
 }
 

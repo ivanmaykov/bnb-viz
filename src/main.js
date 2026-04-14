@@ -90,6 +90,43 @@ page.innerHTML = `
     </div>
   </section>
 
+  <section class="info-panel">
+    <p class="section-kicker">Project introduction</p>
+    <h2>Why study Boston’s Airbnb market?</h2>
+    <p>
+      Airbnb is one of the clearest places where tourism, housing, and local
+      business activity intersect. Boston is especially interesting because its
+      neighborhoods serve very different roles: some are dense visitor hubs,
+      some are residential, and some sit between those two extremes.
+    </p>
+    <p>
+      That makes the city a useful setting for studying how price, demand, and
+      commercialization vary across place. We wanted to understand not just
+      where listings are expensive, but whether those prices align with demand,
+      how they shift through the year, and whether the most expensive areas are
+      also the most professionally operated.
+    </p>
+  </section>
+
+  <section class="info-panel">
+    <p class="section-kicker">Data</p>
+    <h2>What data is used in this project?</h2>
+    <p>
+      This project uses Boston Airbnb data from Inside Airbnb dated 15 March
+      2025. After preprocessing, the site draws on 3,706 listing records,
+      25 neighborhood summaries, 3,882 monthly review observations, and 169
+      monthly pricing observations.
+    </p>
+    <p>
+      The listing-level data includes attributes such as listing ID, nightly
+      price, room type, property type, neighborhood, latitude, longitude,
+      estimated occupancy, availability, recent reviews, review score, and host
+      listing count. The neighborhood-level data adds summary measures such as
+      listing count, median price, median occupancy, average availability,
+      entire-home share, and multi-listing host share.
+    </p>
+  </section>
+
   <section class="story-block">
     <div class="story-intro">
       <p class="section-kicker">1. Spatial pattern</p>
@@ -179,6 +216,72 @@ page.innerHTML = `
     </div>
   </section>
 
+  <section class="conclusion-section">
+    <div class="conclusion-header">
+      <p class="section-kicker">Conclusion</p>
+      <h2>Summary and Findings</h2>
+      <p class="conclusion-lede">
+        Across the four visualizations, three consistent themes emerge about
+        how Boston’s Airbnb market is structured and where pricing pressure is
+        strongest.
+      </p>
+    </div>
+
+    <div class="finding-grid">
+      <article class="finding-card">
+        <p class="finding-number">01</p>
+        <h3>Price concentrates geographically</h3>
+        <p>
+          Boston’s Airbnb prices are not evenly distributed. Central and
+          visitor-oriented neighborhoods support substantially higher nightly
+          prices, while other areas show more inventory than pricing power.
+          That means location remains one of the clearest drivers of market
+          separation in the city.
+        </p>
+      </article>
+
+      <article class="finding-card">
+        <p class="finding-number">02</p>
+        <h3>Higher prices do not guarantee stronger demand</h3>
+        <p>
+          The scatterplot shows that expensive listings are not automatically
+          the most booked. Demand depends on room type, host scale, and recent
+          review activity, so price appears to reflect a broader positioning
+          strategy rather than a simple payoff from higher occupancy.
+        </p>
+      </article>
+
+      <article class="finding-card">
+        <p class="finding-number">03</p>
+        <h3>Commercialization and prestige are not identical</h3>
+        <p>
+          Some neighborhoods are expensive because they are desirable to
+          visitors, while others look more commercial because they have more
+          multi-listing hosts or more consistently available inventory. The
+          market therefore varies not just in price, but in how professionally
+          listings are operated and scaled.
+        </p>
+      </article>
+    </div>
+
+    <div class="future-work-block">
+      <h2>Future Work</h2>
+      <p>
+        One limitation of this analysis is that it focuses on a single Inside
+        Airbnb snapshot dated 15 March 2025. A stronger next step would be to
+        incorporate multiple snapshots across years so the project can measure
+        how neighborhood pricing, host concentration, and seasonal behavior
+        change over time rather than treating the market as static.
+      </p>
+      <p>
+        Future work could also connect Airbnb activity to housing, tourism,
+        university calendars, or event data to better explain why certain
+        neighborhoods become more expensive or more commercialized than others.
+        That would move the project from description toward causal explanation.
+      </p>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <p>
       Data sources: Inside Airbnb, dated 15 March 2025, insideairbnb.com
@@ -243,8 +346,8 @@ function renderHeroStats(listings, neighborhoods) {
       value: d3.format(',')(neighborhoods.length),
     },
     {
-      label: 'Median occupancy',
-      value: `${oneDecimal(d3.median(listings, (d) => d.estimated_occupancy_l365d))} nights`,
+      label: 'Median booked nights',
+      value: d3.format(',')(Math.round(d3.median(listings, (d) => d.estimated_occupancy_l365d))),
     },
   ];
 
@@ -652,12 +755,15 @@ function renderRankChart(listings, neighborhoodSummary) {
         const row = d3.select(this);
         const barHeight = y.bandwidth();
         const midY = barHeight / 2;
+        const barEnd = x(d.value);
+        const labelText = metric.formatter(d.value);
+        const fitsOutside = barEnd <= innerWidth - 96;
 
         row
           .select('.metric-bar')
           .attr('x', 0)
           .attr('y', 0)
-          .attr('width', x(d.value))
+          .attr('width', barEnd)
           .attr('height', barHeight)
           .attr('fill', barColor);
         row
@@ -669,11 +775,11 @@ function renderRankChart(listings, neighborhoodSummary) {
           .text(d.neighbourhood);
         row
           .select('.bar-value')
-          .attr('x', x(d.value) + 8)
+          .attr('x', fitsOutside ? barEnd + 8 : Math.max(8, barEnd - 8))
           .attr('y', midY)
           .attr('dy', '0.35em')
-          .attr('text-anchor', 'start')
-          .text(metric.formatter(d.value));
+          .attr('text-anchor', fitsOutside ? 'start' : 'end')
+          .text(labelText);
       });
 
     return { innerHeight, x, label: metric.label };
