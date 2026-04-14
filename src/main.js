@@ -217,6 +217,18 @@ page.innerHTML = `
     </div>
   </section>
 
+  <section class="featured-section">
+    <div class="story-intro">
+      <p class="section-kicker">Featured listings</p>
+      <h2>A closer look at some Boston Airbnbs.</h2>
+      <p>
+        A rotating sample of listings drawn from across the dataset — each with
+        a real price, occupancy estimate, and neighborhood.
+      </p>
+    </div>
+    <div id="featured-section-grid" class="featured-grid"></div>
+  </section>
+
   <section class="conclusion-section">
     <div class="conclusion-header">
       <p class="section-kicker">Conclusion</p>
@@ -322,6 +334,7 @@ Promise.all([
     ]) => {
       renderHeroStats(listingPoints, neighborhoodSummary);
       renderFeaturedListing(listingPoints);
+      renderFeaturedSection(listingPoints);
       renderMap(listingPoints, neighborhoodShapes);
       renderRankChart(listingPoints, neighborhoodSummary);
       renderAltairChart('#altair-scatter', scatterSpec);
@@ -437,6 +450,74 @@ function renderFeaturedListing(listings) {
     index = (index + 1) % shuffled.length;
     draw(shuffled[index]);
   }, 5000);
+}
+
+function renderFeaturedSection(listings) {
+  const container = document.querySelector('#featured-section-grid');
+  if (!container) return;
+
+  const candidates = listings.filter(
+    (d) =>
+      d.picture_url &&
+      d.name &&
+      d.price !== null &&
+      d.estimated_occupancy_l365d !== null &&
+      d.neighbourhood
+  );
+  if (!candidates.length) return;
+
+  const pool = d3.shuffle([...candidates]).slice(0, Math.min(48, candidates.length));
+  const count = 3;
+  let offset = 0;
+
+  function cardHTML(listing) {
+    const hostLine = listing.host_name
+      ? `Hosted by ${listing.host_name}`
+      : 'Boston Airbnb listing';
+    const styleLine = [listing.property_type, listing.room_type]
+      .filter(Boolean)
+      .join(' • ');
+    return `
+      <div class="featured-card">
+        <div class="featured-image-wrap">
+          <img
+            src="${listing.picture_url}"
+            alt="${listing.name}"
+            class="featured-image"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+        <div class="featured-body">
+          <h3 class="featured-title">${listing.name}</h3>
+          <p class="featured-meta">${hostLine}</p>
+          <p class="featured-style">${styleLine}</p>
+          <div class="featured-facts">
+            <span><strong>${money(listing.price)}</strong> / night</span>
+            <span><strong>${Math.round(listing.estimated_occupancy_l365d)}</strong> booked nights</span>
+            <span>${listing.neighbourhood}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function draw() {
+    const slice = Array.from({ length: count }, (_, i) => pool[(offset + i) % pool.length]);
+    container.innerHTML = slice.map(cardHTML).join('');
+    container.querySelectorAll('.featured-image').forEach((img) => {
+      img.addEventListener(
+        'error',
+        () => { img.src = `${import.meta.env.BASE_URL}hero-boston.webp`; },
+        { once: true }
+      );
+    });
+  }
+
+  draw();
+  window.setInterval(() => {
+    offset = (offset + count) % pool.length;
+    draw();
+  }, 6000);
 }
 
 async function renderAltairChart(selector, spec) {
