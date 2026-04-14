@@ -86,7 +86,7 @@ page.innerHTML = `
         <p class="project-kicker">Course Project</p>
         <h3>DS4200 Final Project</h3>
         <p class="project-term">Spring 2026</p>
-        <p class="project-authors">Ivan Maykov and Mohammed Ibrahim</p>
+        <p class="project-authors">Ivan Maykov and Mohamed Ibrahim</p>
       </aside>
       <div class="hero-stats" id="hero-stats"></div>
     </div>
