@@ -169,6 +169,12 @@ page.innerHTML = `
       </p>
     </div>
     <div class="card">
+      <div class="controls-row">
+        <label>
+          Room type
+          <select id="scatter-room-type"></select>
+        </label>
+      </div>
       <div id="altair-scatter" class="viz-frame viz-altair"></div>
     </div>
   </section>
@@ -281,7 +287,6 @@ page.innerHTML = `
         Future work could also connect Airbnb activity to housing, tourism,
         university calendars, or event data to better explain why certain
         neighborhoods become more expensive or more commercialized than others.
-        That would move the project from description toward causal explanation.
       </p>
     </div>
   </section>
@@ -327,7 +332,7 @@ Promise.all([
       renderFeaturedListing(listingPoints);
       renderMap(listingPoints, neighborhoodShapes);
       renderRankChart(listingPoints, neighborhoodSummary);
-      renderAltairChart('#altair-scatter', scatterSpec);
+      renderScatterChart(listingPoints, scatterSpec);
       renderAltairChart('#altair-seasonal', seasonalitySpec);
     }
   )
@@ -444,6 +449,32 @@ function renderFeaturedListing(listings) {
       container.classList.remove('is-fading');
     }, 500);
   }, 5000);
+}
+
+function renderScatterChart(listingPoints, spec) {
+  const roomTypeSelect = document.querySelector('#scatter-room-type');
+
+  roomTypeSelect.innerHTML = roomTypeOptions
+    .map((value) => `<option value="${value}">${value}</option>`)
+    .join('');
+
+  function render() {
+    const selected = roomTypeSelect.value;
+    const filtered =
+      selected === 'All'
+        ? listingPoints
+        : listingPoints.filter((d) => d.room_type === selected);
+
+    const patchedSpec = {
+      ...spec,
+      data: { values: filtered },
+    };
+
+    renderAltairChart('#altair-scatter', patchedSpec);
+  }
+
+  roomTypeSelect.addEventListener('change', render);
+  render();
 }
 
 async function renderAltairChart(selector, spec) {

@@ -352,7 +352,7 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
         .transform_filter('datum.rank <= 10')
         .mark_bar(color='#cf5f28', cornerRadiusEnd=3)
         .encode(
-            x=alt.X('selected_count:Q', title='Listings in current view'),
+            x=alt.X('selected_count:Q', title='Listings in selection'),
             y=alt.Y('neighbourhood:N', sort='-x', title='Neighborhood'),
             tooltip=[
                 alt.Tooltip('neighbourhood:N', title='Neighborhood'),
