@@ -456,6 +456,65 @@ h2 {
   padding: 10px;
 }
 
+.map-legend {
+  margin: 14px 8px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(53, 33, 21, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--muted);
+}
+
+.legend-scale {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.legend-gradient {
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(53, 33, 21, 0.14);
+}
+
+.legend-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
+.legend-no-data {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.legend-no-data i {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: #e7ddcf;
+  border: 1px solid rgba(53, 33, 21, 0.14);
+}
+
+.takeaway {
+  margin: 14px 8px 0;
+  padding: 12px 14px;
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--muted);
+  font-family: 'Avenir Next', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 .viz-altair .vega-embed,
 .viz-altair .vega-embed > div,
 .viz-altair .chart-wrapper,
@@ -519,6 +578,11 @@ h2 {
 .boxplot-row .bar-value {
   font-size: 0.8rem;
   fill: #6b6258;
+}
+
+.boxplot-row,
+.bar-row {
+  cursor: default;
 }
 
 .boxplot-axis text {

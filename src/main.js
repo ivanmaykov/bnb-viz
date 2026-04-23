@@ -151,6 +151,12 @@ page.innerHTML = `
         </label>
       </div>
       <div id="map-chart" class="viz-frame viz-map"></div>
+      <div id="map-legend" class="map-legend" aria-label="Map color legend"></div>
+      <p class="takeaway">
+        Takeaway: use the metric and room-type filters to compare where price,
+        supply, demand, and rating strength concentrate. Darker neighborhoods
+        indicate higher values for the selected metric.
+      </p>
     </div>
   </section>
 
@@ -176,6 +182,12 @@ page.innerHTML = `
         </label>
       </div>
       <div id="altair-scatter" class="viz-frame viz-altair"></div>
+      <p class="takeaway">
+        Takeaway: the scatterplot separates price from estimated booked days,
+        while the linked bar chart shows which neighborhoods dominate the
+        selected points. Filtering by room type makes the tradeoff easier to
+        compare across listing styles.
+      </p>
     </div>
   </section>
 
@@ -194,6 +206,11 @@ page.innerHTML = `
     </div>
     <div class="card">
       <div id="altair-seasonal" class="viz-frame viz-altair"></div>
+      <p class="takeaway">
+        Takeaway: monthly review activity and available prices show a seasonal
+        pattern, but this section should be read as a snapshot-based estimate
+        rather than a year-over-year trend.
+      </p>
     </div>
   </section>
 
@@ -220,6 +237,11 @@ page.innerHTML = `
         </label>
       </div>
       <div id="rank-chart" class="viz-frame viz-bars"></div>
+      <p class="takeaway">
+        Takeaway: price, occupancy, availability, and host concentration rank
+        neighborhoods differently, so expensive areas are not always the areas
+        with the strongest signs of commercial operation.
+      </p>
     </div>
   </section>
 
@@ -501,6 +523,7 @@ async function renderAltairChart(selector, spec) {
 function renderMap(listings, geojson) {
   const metricSelect = document.querySelector('#map-metric');
   const roomTypeSelect = document.querySelector('#map-room-type');
+  const legendContainer = document.querySelector('#map-legend');
 
   metricSelect.innerHTML = Object.entries(metrics)
     .map(
@@ -586,6 +609,8 @@ function renderMap(listings, geojson) {
       .domain(d3.extent(values))
       .interpolator(d3.interpolateYlOrRd);
 
+    renderMapLegend(legendContainer, color, metric, values);
+
     group
       .selectAll('path')
       .data(features)
@@ -643,6 +668,29 @@ function renderMap(listings, geojson) {
   metricSelect.addEventListener('change', update);
   roomTypeSelect.addEventListener('change', update);
   update();
+}
+
+function renderMapLegend(container, color, metric, values) {
+  if (!container || !values.length) {
+    return;
+  }
+
+  const [minValue, maxValue] = d3.extent(values);
+  const stops = d3.range(0, 1.01, 0.1)
+    .map((step) => color(minValue + (maxValue - minValue) * step))
+    .join(', ');
+
+  container.innerHTML = `
+    <div class="legend-scale">
+      <span>${metric.formatter(minValue)}</span>
+      <span class="legend-gradient" style="background: linear-gradient(90deg, ${stops});"></span>
+      <span>${metric.formatter(maxValue)}</span>
+    </div>
+    <div class="legend-meta">
+      <span>${metric.label}</span>
+      <span class="legend-no-data"><i></i>No data</span>
+    </div>
+  `;
 }
 
 function renderRankChart(listings, neighborhoodSummary) {
@@ -706,6 +754,7 @@ function renderRankChart(listings, neighborhoodSummary) {
         min: lowerWhisker,
         max: upperWhisker,
         outliers,
+        count: values.length,
       };
     })
       .filter(Boolean)
@@ -798,6 +847,32 @@ function renderRankChart(listings, neighborhoodSummary) {
           .attr('dy', '0.35em')
           .attr('text-anchor', 'end')
           .text(d.neighbourhood);
+        row
+          .on('mouseenter', function handleEnter(event) {
+            d3.select(this).select('.boxplot-box').attr('fill', '#b84f20');
+            tooltip
+              .style('opacity', 1)
+              .html(
+                `
+                <strong>${d.neighbourhood}</strong>
+                <span>Median: ${metric.formatter(d.median)}</span>
+                <span>IQR: ${metric.formatter(d.q1)} to ${metric.formatter(d.q3)}</span>
+                <span>10th-90th pct.: ${metric.formatter(d.min)} to ${metric.formatter(d.max)}</span>
+                <span>Listings: ${d3.format(',')(d.count)}</span>
+              `
+              )
+              .style('left', `${event.pageX + 14}px`)
+              .style('top', `${event.pageY - 20}px`);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', `${event.pageX + 14}px`)
+              .style('top', `${event.pageY - 20}px`);
+          })
+          .on('mouseleave', function handleLeave() {
+            d3.select(this).select('.boxplot-box').attr('fill', barColor);
+            tooltip.style('opacity', 0);
+          });
       });
 
     root
@@ -832,6 +907,7 @@ function renderRankChart(listings, neighborhoodSummary) {
       .map((d) => ({
         neighbourhood: d.neighbourhood,
         value: d[metric.summaryKey],
+        listing_count: d.listing_count,
       }))
       .sort((a, b) => d3.descending(a.value, b.value))
       .slice(0, 15);
@@ -895,6 +971,30 @@ function renderRankChart(listings, neighborhoodSummary) {
           .attr('dy', '0.35em')
           .attr('text-anchor', fitsOutside ? 'start' : 'end')
           .text(labelText);
+        row
+          .on('mouseenter', function handleEnter(event) {
+            d3.select(this).select('.metric-bar').attr('fill', '#b84f20');
+            tooltip
+              .style('opacity', 1)
+              .html(
+                `
+                <strong>${d.neighbourhood}</strong>
+                <span>${metric.label}: ${metric.formatter(d.value)}</span>
+                <span>Listings: ${d3.format(',')(d.listing_count)}</span>
+              `
+              )
+              .style('left', `${event.pageX + 14}px`)
+              .style('top', `${event.pageY - 20}px`);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', `${event.pageX + 14}px`)
+              .style('top', `${event.pageY - 20}px`);
+          })
+          .on('mouseleave', function handleLeave() {
+            d3.select(this).select('.metric-bar').attr('fill', barColor);
+            tooltip.style('opacity', 0);
+          });
       });
 
     return { innerHeight, x, label: metric.label };

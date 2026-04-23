@@ -288,13 +288,28 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
     brush = alt.selection_interval(encodings=['x', 'y'])
     room_type = alt.selection_point(fields=['room_type'], bind='legend')
     data = alt.Data(url='data/listing_points.json')
+    price_values = sorted(
+        point['price']
+        for point in listing_points
+        if point.get('price') is not None and point.get('estimated_occupancy_l365d') is not None
+    )
+    price_domain_max = 1000
+    if price_values:
+        price_domain_max = max(
+            250,
+            math.ceil(price_values[int((len(price_values) - 1) * 0.98)] / 50) * 50,
+        )
 
     scatter = (
         alt.Chart(data)
         .transform_filter('datum.price != null && datum.estimated_occupancy_l365d != null')
-        .mark_circle(opacity=0.72, stroke='white', strokeWidth=0.3)
+        .mark_circle(opacity=0.5, stroke='white', strokeWidth=0.35)
         .encode(
-            x=alt.X('price:Q', title='Nightly price ($)', scale=alt.Scale(zero=False)),
+            x=alt.X(
+                'price:Q',
+                title='Nightly price ($)',
+                scale=alt.Scale(domain=[0, price_domain_max], clamp=True),
+            ),
             y=alt.Y(
                 'estimated_occupancy_l365d:Q',
                 title='Estimated booked days (last 365)',
@@ -305,6 +320,15 @@ def build_price_demand_spec(listing_points: list[dict]) -> dict:
                 alt.Color(
                     'room_type:N',
                     title='Room type',
+                    scale=alt.Scale(
+                        domain=[
+                            'Entire home/apt',
+                            'Private room',
+                            'Hotel room',
+                            'Shared room',
+                        ],
+                        range=['#1f77b4', '#d62728', '#2ca02c', '#9467bd'],
+                    ),
                     legend=alt.Legend(
                         orient='bottom',
                         direction='horizontal',
