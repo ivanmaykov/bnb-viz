@@ -676,7 +676,8 @@ function renderMapLegend(container, color, metric, values) {
   }
 
   const [minValue, maxValue] = d3.extent(values);
-  const stops = d3.range(0, 1.01, 0.1)
+  const stops = d3
+    .range(0, 1.01, 0.1)
     .map((step) => color(minValue + (maxValue - minValue) * step))
     .join(', ');
 
